@@ -21,14 +21,13 @@ pdfplumber==0.9.0
 
 
 # Environment Variables
-python-dotenv==1.0.0
 
 # Security & Validation
 bleach==6.0.0
 flask-limiter==3.5.0
 
 # Email Support (Optional)
-smtplib2==0.2.1
+
 
 # Testing Dependencies (Development)
 pytest==7.4.2
