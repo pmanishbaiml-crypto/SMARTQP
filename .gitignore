@@ -213,3 +213,13 @@ test-results/
 # Documentation build
 docs/_build/
 site/
+
+# Web dependencies and builds
+node_modules/
+frontend/node_modules/
+.next/
+out/
+build/
+.vercel
+.npm
+.eslintcache
