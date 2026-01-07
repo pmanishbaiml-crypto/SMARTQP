@@ -19,13 +19,8 @@ from services.formatting_service import (
     format_question_with_tables
 )
 from services.parsing_service import parse_docx_question_bank
-# Use Advanced Parser for PDF
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(__file__))) # Add backend to path
-from advanced_parser import get_advanced_parser
-
 # PDF/DOCX Generation Imports
-import pythoncom
+# import pythoncom # Windows only - Moved to local scope
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -46,10 +41,12 @@ def convert_docx_to_pdf_robust(docx_path):
     pdf_path = docx_path.replace('.docx', '.pdf')
 
     # Method 1: Try docx2pdf with COM initialization
+    # Method 1: Try docx2pdf with COM initialization
     try:
         from docx2pdf import convert
+        import pythoncom
         print("Attempting PDF conversion with docx2pdf...")
-
+        
         # Initialize COM for the current thread
         pythoncom.CoInitialize()
 
@@ -511,7 +508,11 @@ def upload_and_parse():
         try:
             if file_extension == 'pdf':
                 try:
+                    # Lazy import to avoid startup crash if dependencies are missing
+                    import sys
+                    sys.path.append(os.path.dirname(os.path.dirname(__file__))) # Add backend to path
                     from advanced_parser import get_advanced_parser
+                    
                     parser = get_advanced_parser()
                     images_folder = os.path.join(user_upload_folder, "extracted_images")
                     os.makedirs(images_folder, exist_ok=True)
@@ -524,6 +525,11 @@ def upload_and_parse():
                             "images": [img.replace('\\', '/') for img in item["images"]],
                             "formulas": item["formulas"]
                         })
+                except ImportError as ie:
+                    print(f"Advanced parser import failed (dependencies missing): {ie}")
+                    # Fallback
+                    parsed_questions = parse_pdf_with_embedded_tables(filepath)
+                    if not parsed_questions: parsed_questions = parse_pdf_question_bank(filepath)
                 except Exception as e:
                     print(f"Advanced parsing failed: {e}")
                     parsed_questions = parse_pdf_with_embedded_tables(filepath)
@@ -622,7 +628,11 @@ def upload_and_parse_cie():
             if file_extension == 'pdf':
                 # Try Advanced Parser first for better results with images/tables
                 try:
+                    # Lazy import
+                    import sys
+                    sys.path.append(os.path.dirname(os.path.dirname(__file__))) # Add backend to path
                     from advanced_parser import get_advanced_parser
+                    
                     parser = get_advanced_parser()
                     # Create a subfolder for images
                     images_folder = os.path.join(user_upload_folder, "extracted_images")
