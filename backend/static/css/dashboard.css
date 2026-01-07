@@ -1,0 +1,903 @@
+        /* Aggressive reset for body/html margins to prevent unwanted gaps */
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            /* Ensure padding/border are included in element's total width/height */
+            /* College background always set here, transparency via ::before */
+            background: url("../assets/college_bg.png") no-repeat center center fixed;
+            background-size: cover;
+            /* No font-family added here to preserve original */
+        }
+
+        /* Ensure body is also h-full for proper flex calculation */
+        body {
+            min-height: 100vh;
+            /* Ensure body takes full viewport height */
+            display: flex;
+            /* Make body a flex container for sidebar and main-content-wrapper */
+        }
+
+        /* Transparent white overlay for the body content - now with subtle margins */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0.5rem;
+            /* 8px border */
+            left: 0.5rem;
+            right: 0.5rem;
+            bottom: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.5);
+            /* Light mode overlay: 50% white transparency */
+            z-index: -1;
+            /* Place it behind the main content but above the background image */
+        }
+
+        *,
+        ::before,
+        ::after {
+            box-sizing: inherit;
+        }
+
+        /* --- Theme-agnostic base styles --- */
+        /* Account avatar circle styles (same as before) */
+        .account-avatar-circle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 9999px;
+            border: 2px solid;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .bg-avatar-1 {
+            background-color: #EF4444;
+            border-color: #DC2626;
+        }
+
+        /* red-500 */
+        .bg-avatar-2 {
+            background-color: #F97316;
+            border-color: #EA580C;
+        }
+
+        /* orange-500 */
+        .bg-avatar-3 {
+            background-color: #EAB308;
+            border-color: #D97706;
+        }
+
+        /* yellow-500 */
+        .bg-avatar-4 {
+            background-color: #22C55E;
+            border-color: #16A34A;
+        }
+
+        /* green-500 */
+        .bg-avatar-5 {
+            background-color: #3B82F6;
+            border-color: #2563EB;
+        }
+
+        /* blue-500 */
+        .bg-avatar-6 {
+            background-color: #8B5CF6;
+            border-color: #7C3AED;
+        }
+
+        /* violet-500 */
+        .bg-avatar-7 {
+            background-color: #EC4899;
+            border-color: #DB2777;
+        }
+
+        /* pink-500 */
+
+        /* --- Sidebar & Main Content Layout (mostly same as last version, but with color variables) --- */
+        .sidebar {
+            width: 16rem;
+            height: 100vh;
+            flex-shrink: 0;
+            transition: width 0.3s ease-in-out, transform 0.3s ease-in-out;
+            overflow-x: hidden;
+            white-space: nowrap;
+        }
+
+        .main-content-wrapper {
+            flex-grow: 1;
+            min-height: 100vh;
+            /* Keep min-height for general responsiveness */
+            height: 100vh;
+            /* Make main wrapper explicitly take full viewport height */
+            margin-left: 0;
+            transition: margin-left 0.3s ease-in-out;
+            display: flex;
+            /* Make it a flex container */
+            flex-direction: column;
+            /* Stack its children (header, main-canvas) vertically */
+        }
+
+        /* main-content-area is now main#main-canvas */
+        /* The existing .main-content-area CSS is fine, but main#main-canvas also needs flex-grow */
+
+        /* --- Mobile Behavior: Sidebar Overlays --- */
+        @media (max-width: 767px) {
+            .sidebar {
+                position: fixed;
+                width: 16rem;
+                transform: translateX(-100%);
+                z-index: 1000;
+            }
+
+            body.sidebar-open-mobile .sidebar {
+                transform: translateX(0);
+            }
+
+            body.sidebar-closed-desktop .sidebar {
+                transform: translateX(-100%) !important;
+                width: 16rem !important;
+            }
+        }
+
+        /* --- Desktop Behavior: Sidebar Pushes/Expands --- */
+        @media (min-width: 768px) {
+            .sidebar {
+                position: static;
+                transform: translateX(0);
+                width: 16rem;
+                box-shadow: none;
+            }
+
+            body.sidebar-closed-desktop .sidebar {
+                width: 4rem;
+
+                & .text-2xl,
+                & #new-qp-btn span,
+                & nav a span,
+                & .px-6.py-2.border-t.border-gray-700.space-y-2 a span {
+                    display: none;
+                }
+
+                & #new-qp-btn {
+                    width: calc(4rem - 1rem);
+                    padding-left: 0;
+                    padding-right: 0;
+                    justify-content: center;
+                }
+
+                & #new-qp-btn i {
+                    margin-right: 0;
+                }
+            }
+        }
+
+        /* --- THEME-SPECIFIC STYLES --- */
+        /* Light Mode (Default) Colors */
+        body {
+            color: #1F2937;
+            /* Default text color - gray-900 */
+        }
+
+        /* Body text */
+
+        /* Sidebar Light Mode */
+        .sidebar {
+            background-color: #F9FAFB;
+            /* gray-50 */
+            color: #374151;
+            /* gray-700 */
+            border-right: 1px solid #E5E7EB;
+        }
+
+        /* gray-200 */
+        .sidebar .border-gray-700 {
+            border-color: #E5E7EB;
+        }
+
+        /* gray-200 */
+        .sidebar a {
+            color: #374151;
+        }
+
+        .sidebar a:hover {
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+
+        /* gray-100 hover, gray-900 text */
+        .sidebar button {
+            background-color: #3B82F6;
+            color: #FFFFFF;
+        }
+
+        /* blue-600, white */
+        .sidebar button:hover {
+            background-color: #2563EB;
+        }
+
+        /* blue-700 */
+
+        /* Header Light Mode */
+        header {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-color: #E5E7EB;
+        }
+
+        /* white/90, gray-200 */
+        header h1 {
+            color: #1F2937;
+        }
+
+        /* gray-900 */
+        header button {
+            color: #374151;
+        }
+
+        /* gray-700 */
+        header button:hover {
+            color: #111827;
+        }
+
+        /* gray-900 hover */
+
+        /* Main Canvas Light Mode */
+        main#main-canvas {
+            background-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            flex-grow: 1;
+            /* Crucial: make it grow to fill remaining vertical space */
+            overflow-y: auto;
+            /* Allow the main content area itself to scroll if absolutely necessary */
+            padding: 0;
+            /* Already there but emphasizing */
+        }
+
+        /* Content Sections inside Main Canvas Light Mode */
+        #new-qp-canvas,
+        #requirements-content,
+        #saved-content,
+        #recent-content,
+        #settings-content,
+        #help-content,
+        #qp-editor-canvas {
+            background-color: #FFFFFF;
+            /* White */
+            border-color: #E5E7EB;
+            /* gray-200 */
+        }
+
+        #saved-content ul li {
+            background-color: #F9FAFB;
+        }
+
+        /* gray-50 */
+
+
+        /* --- Dark Mode Overrides --- */
+        body.dark {
+            background-color: #1F2937;
+            color: #E5E7EB;
+            background-image: none;
+        }
+
+        body.dark::before {
+            background-color: rgba(0, 0, 0, 0.7);
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        /* Sidebar Dark Mode */
+        body.dark .sidebar {
+            background-color: #111827;
+            color: #D1D5DB;
+            border-right-color: #374151;
+        }
+
+        body.dark .sidebar .border-gray-700 {
+            border-color: #374151;
+        }
+
+        body.dark .sidebar a {
+            color: #D1D5DB;
+        }
+
+        body.dark .sidebar a:hover {
+            background-color: #374151;
+            color: #F9FAFB;
+        }
+
+        body.dark .sidebar button {
+            background-color: #2563EB;
+            color: #F9FAFB;
+        }
+
+        body.dark .sidebar button:hover {
+            background-color: #1D4ED8;
+        }
+
+        /* Header Dark Mode */
+        body.dark header {
+            background-color: rgba(17, 24, 39, 0.9);
+            border-color: #374151;
+        }
+
+        body.dark header h1 {
+            color: #F9FAFB;
+        }
+
+        body.dark header button {
+            color: #D1D5DB;
+        }
+
+        body.dark header button:hover {
+            color: #F9FAFB;
+        }
+
+        /* Main Canvas Dark Mode */
+        body.dark main#main-canvas {
+            background-color: rgba(31, 41, 55, 0.7);
+            box-shadow: none;
+        }
+
+        body.dark main#main-canvas h2,
+        body.dark main#main-canvas h3 {
+            color: #F9FAFB;
+        }
+
+        body.dark main#main-canvas p,
+        body.dark main#main-canvas ul,
+        body.dark main#main-canvas li {
+            color: #D1D5DB;
+        }
+
+        /* Content Sections inside Main Canvas Dark Mode */
+        body.dark #new-qp-canvas,
+        body.dark #requirements-content,
+        body.dark #saved-content,
+        body.dark #recent-content,
+        body.dark #settings-content,
+        body.dark #help-content,
+        body.dark #qp-editor-canvas {
+            background-color: #1F2937;
+            border-color: #374151;
+        }
+
+        body.dark #saved-content ul li {
+            background-color: #374151;
+        }
+
+        /* Account Dropdown Dark Mode */
+        body.dark #account-dropdown {
+            background-color: #1F2937;
+            border-color: #374151;
+        }
+
+        body.dark #account-dropdown .text-gray-700 {
+            color: #D1D5DB;
+        }
+
+        body.dark #account-dropdown .text-gray-500 {
+            color: #9CA3AF;
+        }
+
+        body.dark #account-dropdown .hover\:bg-gray-100:hover {
+            background-color: #374151;
+        }
+
+        body.dark #account-dropdown .text-red-600 {
+            color: #EF4444;
+        }
+
+        /* Theme Toggle Dark Mode */
+        body.dark #theme-toggle+div {
+            background-color: #4B5563;
+        }
+
+        body.dark #theme-toggle:checked+div {
+            background-color: #2563EB;
+        }
+
+        /* Specific styles for QP Editor */
+        .qp-main-question {
+            border: 1px solid #CBD5E0;
+            /* gray-300 */
+            border-radius: 0.5rem;
+            /* rounded-lg */
+            padding: 1rem;
+            /* p-4 */
+            margin-bottom: 1.5rem;
+            /* mb-6 */
+            background-color: #F8FAFC;
+            /* gray-50 */
+            position: relative;
+        }
+
+        .qp-main-question.selected-alt {
+            border-color: #3B82F6;
+            /* blue-500 */
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            /* blue-500 with opacity */
+        }
+
+        .qp-main-question.qp-alt-option {
+            background-color: #EFF6FF;
+            /* blue-50 */
+            border-style: dashed;
+        }
+
+        .qp-sub-question {
+            border: 1px dashed #E2E8F0;
+            /* gray-200 */
+            border-radius: 0.375rem;
+            /* rounded-md */
+            padding: 0.75rem;
+            /* p-3 */
+            margin-top: 0.75rem;
+            /* mt-3 */
+            background-color: #FFFFFF;
+            /* white */
+        }
+
+        .qp-sub-question .remove-sub-btn {
+            position: absolute;
+            top: 0.25rem;
+            right: 0.25rem;
+            background-color: #EF4444;
+            /* red-500 */
+            color: white;
+            border-radius: 9999px;
+            /* full rounded */
+            width: 1.25rem;
+            height: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            line-height: 1;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .qp-sub-question:hover .remove-sub-btn {
+            opacity: 1;
+        }
+
+        .qp-question-number {
+            font-weight: bold;
+            margin-right: 0.5rem;
+            display: inline-block;
+            min-width: 1.5rem;
+            /* For alignment */
+            text-align: right;
+        }
+
+        .qp-question-text {
+            display: inline-block;
+            width: calc(100% - 2.5rem);
+            /* Adjust for number and margin */
+            vertical-align: top;
+        }
+
+        .qp-marks-input {
+            width: 3rem;
+            /* Small width for marks input */
+            text-align: center;
+            border: 1px solid #CBD5E0;
+            border-radius: 0.25rem;
+            padding: 0.1rem 0.2rem;
+            font-size: 0.875rem;
+        }
+
+        .qp-total-marks {
+            font-weight: bold;
+            color: #10B981;
+            /* green-500 */
+        }
+
+        .qp-total-marks.error {
+            color: #EF4444;
+            /* red-500 */
+        }
+
+        /* Styles for the modal */
+        .modal {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            /* Stay in place */
+            z-index: 1000;
+            /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            /* Full width */
+            height: 100%;
+            /* Full height */
+            overflow: auto;
+            /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.4);
+            /* Black w/ opacity */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Styles for the splitter */
+        .splitter {
+            width: 8px;
+            /* Width of the draggable bar */
+            cursor: ew-resize;
+            /* East-West resize cursor */
+            background-color: #cbd5e0;
+            /* light gray, tailwind gray-300 */
+            flex-shrink: 0;
+            /* Prevent the splitter from shrinking */
+            z-index: 10;
+            /* Ensure it's on top */
+            transition: background-color 0.2s ease;
+            /* Smooth hover effect */
+        }
+
+        .splitter:hover {
+            background-color: #3b82f6;
+            /* blue-500 on hover */
+        }
+
+        /* Ensure the parent of .splitter and panes is flex */
+        .qp-editor-flex-container {
+            display: flex;
+            position: relative;
+            /* Important for absolute positioning if needed, or just for context */
+            height: 100%;
+            /* Make it take up the full height of its flex-grow parent (#qp-editor-canvas) */
+            gap: 0;
+            /* No gap between elements */
+        }
+
+        /* Ensure equal pane sizes with stronger constraints */
+        #left-pane,
+        #right-pane {
+            flex: 1 1 0 !important;
+            /* Equal flex grow, shrink, and basis - force with !important */
+            min-width: 0 !important;
+            /* Allow shrinking below content width */
+            max-width: none !important;
+            /* No maximum width restriction */
+            width: 0 !important;
+            /* Reset width to let flex handle sizing */
+            box-sizing: border-box;
+            /* Include padding and border in width calculation */
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        /* Prevent content from affecting pane width */
+        #left-pane *,
+        #right-pane * {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Ensure headers don't cause width differences */
+        #left-pane h4,
+        #right-pane h4 {
+            min-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            margin: 0 !important;
+            padding: 0 0 12px 0 !important;
+            flex-shrink: 0;
+        }
+
+        /* Ensure content areas are equal and contained */
+        #parsed-questions-list,
+        #qp-preview-list {
+            min-width: 0;
+            width: 100%;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex: 1;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Force equal width distribution regardless of content */
+        .qp-editor-flex-container>#left-pane {
+            flex: 1 1 50% !important;
+        }
+
+        .qp-editor-flex-container>#right-pane {
+            flex: 1 1 50% !important;
+        }
+
+        /* Additional layout improvements */
+        #qp-editor-canvas {
+            min-height: 600px;
+        }
+
+        /* Ensure consistent spacing in both panes */
+        #left-pane>*,
+        #right-pane>* {
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        /* Fix button alignment */
+        #add-main-question-btn,
+        #generate-questions-btn {
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        /* Ensure consistent padding for content sections */
+        .mb-3 {
+            margin-bottom: 12px !important;
+        }
+
+        .mb-4 {
+            margin-bottom: 16px !important;
+        }
+
+        /* Cool Dashboard Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-10px);
+            }
+
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200px 0;
+            }
+
+            100% {
+                background-position: calc(200px + 100%) 0;
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 1s ease-out;
+        }
+
+        .animate-slide-in-left {
+            animation: slideInLeft 0.6s ease-out;
+        }
+
+        .animate-slide-in-right {
+            animation: slideInRight 0.6s ease-out;
+        }
+
+        .animate-bounce-slow {
+            animation: bounce 2s infinite;
+        }
+
+        .animate-pulse-slow {
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .animate-shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200px 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        /* Stat Card Hover Effects */
+        .stat-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Quick Action Button Effects */
+        .quick-action-btn {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quick-action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .quick-action-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Floating Animation */
+        .float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        /* Gradient Text Animation */
+        .gradient-text {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientShift 4s ease infinite;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Loading Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200px 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        /* Enhanced scrolling for independent panes */
+        #parsed-questions-list {
+            max-height: calc(100vh - 300px);
+            /* Ensure definite height for scrolling */
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f1f5f9;
+        }
+
+        #qp-preview-list {
+            max-height: calc(100vh - 350px);
+            /* Account for buttons above */
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f1f5f9;
+        }
+
+        /* Custom scrollbar for webkit browsers */
+        #parsed-questions-list::-webkit-scrollbar,
+        #qp-preview-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #parsed-questions-list::-webkit-scrollbar-track,
+        #qp-preview-list::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 3px;
+        }
+
+        #parsed-questions-list::-webkit-scrollbar-thumb,
+        #qp-preview-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        #parsed-questions-list::-webkit-scrollbar-thumb:hover,
+        #qp-preview-list::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }

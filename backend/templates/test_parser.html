@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Parser Test Workbench</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">
+                <i class="fas fa-flask text-purple-600 mr-3"></i>Advanced Parser Test Workbench
+            </h1>
+            <p class="text-gray-600 mt-2">Test the PDF parsing logic, image extraction, and table formatting in
+                isolation.</p>
+        </header>
+
+        <!-- Controls -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="flex items-end gap-4">
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Question Bank (PDF)</label>
+                    <select id="file-select"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="">Loading files...</option>
+                    </select>
+                </div>
+                <button id="run-btn"
+                    class="px-6 py-2 bg-purple-600 text-white font-semibold rounded-md hover:bg-purple-700 transition duration-200 disabled:opacity-50">
+                    <i class="fas fa-play mr-2"></i>Run Parser
+                </button>
+            </div>
+            <div id="status-msg" class="mt-4 text-sm font-medium hidden"></div>
+        </div>
+
+        <!-- Results -->
+        <div id="results-container" class="hidden space-y-8">
+
+            <!-- Visual Preview -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Visual Preview</h2>
+                <div id="visual-preview" class="space-y-6">
+                    <!-- Questions will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Raw JSON -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-4 cursor-pointer" onclick="toggleJson()">
+                    <h2 class="text-xl font-semibold text-gray-800">Raw JSON Data</h2>
+                    <i id="json-toggle-icon" class="fas fa-chevron-down text-gray-500"></i>
+                </div>
+                <div id="json-container" class="hidden">
+                    <pre id="json-output"
+                        class="bg-gray-800 text-green-400 p-4 rounded-md overflow-x-auto text-sm font-mono"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileSelect = document.getElementById('file-select');
+        const runBtn = document.getElementById('run-btn');
+        const statusMsg = document.getElementById('status-msg');
+        const resultsContainer = document.getElementById('results-container');
+        const visualPreview = document.getElementById('visual-preview');
+        const jsonOutput = document.getElementById('json-output');
+
+        // Load files on startup
+        async function loadFiles() {
+            try {
+                const response = await fetch('/api/test/list_banks');
+                const data = await response.json();
+
+                fileSelect.innerHTML = '<option value="">-- Select a file --</option>';
+                if (data.files && data.files.length > 0) {
+                    data.files.forEach(file => {
+                        const option = document.createElement('option');
+                        option.value = file;
+                        option.textContent = file;
+                        fileSelect.appendChild(option);
+                    });
+                } else {
+                    const option = document.createElement('option');
+                    option.textContent = "No PDF files found in 'question banks' folder";
+                    fileSelect.appendChild(option);
+                }
+            } catch (error) {
+                console.error('Error loading files:', error);
+                fileSelect.innerHTML = '<option value="">Error loading files</option>';
+            }
+        }
+
+        loadFiles();
+
+        // Run Parser
+        runBtn.addEventListener('click', async () => {
+            const filename = fileSelect.value;
+            if (!filename) {
+                alert('Please select a file first.');
+                return;
+            }
+
+            // Reset UI
+            runBtn.disabled = true;
+            runBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Parsing...';
+            statusMsg.textContent = 'Parsing PDF... This may take a moment (OCR is heavy).';
+            statusMsg.className = 'mt-4 text-sm font-medium text-blue-600 block';
+            resultsContainer.classList.add('hidden');
+
+            try {
+                const response = await fetch('/api/test/parse_bank', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    statusMsg.textContent = `Success! Parsed ${result.data.length} items.`;
+                    statusMsg.className = 'mt-4 text-sm font-medium text-green-600 block';
+
+                    renderResults(result.data);
+                } else {
+                    statusMsg.textContent = `Error: ${result.error}`;
+                    statusMsg.className = 'mt-4 text-sm font-medium text-red-600 block';
+                }
+            } catch (error) {
+                statusMsg.textContent = `Network Error: ${error.message}`;
+                statusMsg.className = 'mt-4 text-sm font-medium text-red-600 block';
+            } finally {
+                runBtn.disabled = false;
+                runBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Run Parser';
+            }
+        });
+
+        function renderResults(data) {
+            // Show container
+            resultsContainer.classList.remove('hidden');
+
+            // Render JSON
+            jsonOutput.textContent = JSON.stringify(data, null, 2);
+
+            // Render Visual Preview
+            visualPreview.innerHTML = '';
+            if (data.length === 0) {
+                visualPreview.innerHTML = '<p class="text-gray-500 italic">No content parsed.</p>';
+                return;
+            }
+
+            data.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'bg-gray-50 p-4 rounded-lg border border-gray-200';
+
+                // Format text (table handling)
+                const formattedText = formatQuestionText(item.question_text);
+
+                // Images
+                let imagesHtml = '';
+                if (item.images && item.images.length > 0) {
+                    imagesHtml = '<div class="mt-4 flex flex-wrap gap-4">';
+                    item.images.forEach(img => {
+                        // Backend returns just filename, we need to prepend route
+                        const imgSrc = `/extracted_images/${img}`;
+                        imagesHtml += `
+                            <div class="relative group">
+                                <img src="${imgSrc}" class="max-h-48 rounded shadow-sm border border-gray-300 cursor-pointer" onclick="window.open(this.src, '_blank')">
+                                <span class="absolute bottom-1 right-1 bg-black bg-opacity-50 text-white text-xs px-1 rounded opacity-0 group-hover:opacity-100 transition">${img}</span>
+                            </div>
+                        `;
+                    });
+                    imagesHtml += '</div>';
+                }
+
+                card.innerHTML = `
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0 w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-bold text-sm">
+                            ${index + 1}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="prose prose-sm max-w-none text-gray-800 mb-2">
+                                ${formattedText}
+                            </div>
+                            ${imagesHtml}
+                        </div>
+                    </div>
+                `;
+                visualPreview.appendChild(card);
+            });
+        }
+
+        function toggleJson() {
+            const container = document.getElementById('json-container');
+            const icon = document.getElementById('json-toggle-icon');
+            container.classList.toggle('hidden');
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-up');
+        }
+
+        // --- Helper: Format Question Text (Copied from Dashboard) ---
+        function formatQuestionText(questionText) {
+            if (!questionText) return '';
+
+            // Escape HTML characters first
+            let formatted = questionText.replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+
+            // Check if the text contains explicit "Table:" marker
+            if (formatted.includes('Table:')) {
+                let parts = formatted.split('Table:');
+                let result = parts[0]; // The main question text
+
+                // Process each subsequent part as a table
+                for (let i = 1; i < parts.length; i++) {
+                    result += '<div class="mt-4 font-semibold text-gray-700">Table Data:</div>';
+                    const tableData = parts[i].trim();
+
+                    result += '<div class="mt-2 overflow-x-auto"><table class="min-w-full text-sm border-collapse border border-gray-300 bg-white shadow-sm">';
+
+                    const lines = tableData.split('\n').filter(line => line.trim());
+                    if (lines.length > 0) {
+                        lines.forEach((line, rowIndex) => {
+                            if (line.trim()) {
+                                // Split strictly by pipe '|' as that's what the backend uses
+                                // We also trim each cell to remove the spaces around the pipe
+                                const cells = line.split('|').map(c => c.trim());
+
+                                if (cells.length > 0) {
+                                    result += '<tr>';
+                                    cells.forEach(cell => {
+                                        // First row is header
+                                        const isHeader = rowIndex === 0;
+                                        const cellClass = isHeader ? 'bg-gray-100 font-semibold text-gray-700' : 'text-gray-600';
+                                        result += `<td class="border border-gray-300 px-3 py-2 ${cellClass}">${cell}</td>`;
+                                    });
+                                    result += '</tr>';
+                                }
+                            }
+                        });
+                    }
+                    result += '</table></div>';
+                }
+                return result;
+            }
+
+            // For regular text, just preserve line breaks
+            return formatted.replace(/\n/g, '<br>');
+        }
+    </script>
+</body>
+
+</html>

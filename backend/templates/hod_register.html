@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOD Registration - SmartQPGen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBSnzIj-z4shuJs6IAib6MzKv5JdE7azks",
+            authDomain: "skit-qp.firebaseapp.com",
+            projectId: "skit-qp",
+            storageBucket: "skit-qp.firebasestorage.app",
+            messagingSenderId: "1039823538914",
+            appId: "1:1039823538914:web:a5d1b95e1dde98bc65ecbb",
+            measurementId: "G-KEXRFLLP2Y"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        window.firebaseAuth = auth;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+    </script>
+
+    <style>
+        .college_bg {
+            background: url("{{ url_for('static', filename='assets/college_bg.png') }}") no-repeat center center fixed;
+            background-size: cover;
+        }
+    </style>
+</head>
+
+<body class="college_bg min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 w-full max-w-2xl">
+        <!-- Header -->
+        <div class="flex flex-col items-center justify-center mb-8">
+            <div class="mb-4">
+                <img src="{{ url_for('static', filename='assets/logo.jpg') }}" alt="SKIT Logo"
+                    class="h-16 w-16 rounded-full shadow-md" />
+            </div>
+            <h2 class="text-3xl font-extrabold text-gray-900 text-center">HOD Registration</h2>
+            <p class="text-gray-600 mt-2">Register as Head of Department</p>
+        </div>
+
+        <!-- Registration Form -->
+        <form id="hod-register-form" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Name -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        <i class="fas fa-user mr-2 text-gray-500"></i>Full Name
+                    </label>
+                    <input type="text" id="name" required
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        placeholder="Dr. John Smith">
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        <i class="fas fa-envelope mr-2 text-gray-500"></i>Email Address
+                    </label>
+                    <input type="email" id="email" required
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        placeholder="hod@university.edu">
+                </div>
+
+                <!-- Department -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        <i class="fas fa-building mr-2 text-gray-500"></i>Department
+                    </label>
+                    <select id="department" required
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        <option value="" disabled selected>Select Department</option>
+                        <option value="Computer Science & Engineering">Computer Science & Engineering</option>
+                        <option value="Information Science & Engineering">Information Science & Engineering</option>
+                        <option value="Electronics & Communication Engineering">Electronics & Communication Engineering
+                        </option>
+                        <option value="Mechanical Engineering">Mechanical Engineering</option>
+                        <option value="Civil Engineering">Civil Engineering</option>
+                        <option value="Electrical & Electronics Engineering">Electrical & Electronics Engineering
+                        </option>
+                        <option value="Artificial Intelligence & Machine Learning">Artificial Intelligence & Machine
+                            Learning</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+
+
+                <!-- Password -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        <i class="fas fa-lock mr-2 text-gray-500"></i>Password
+                    </label>
+                    <div class="relative">
+                        <input type="password" id="password" required
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm pr-10"
+                            placeholder="Create password">
+                        <button type="button" id="toggle-password"
+                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        <i class="fas fa-lock mr-2 text-gray-500"></i>Confirm Password
+                    </label>
+                    <div class="relative">
+                        <input type="password" id="confirmPassword" required
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm pr-10"
+                            placeholder="Confirm password">
+                        <button type="button" id="toggle-confirm-password"
+                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HOD Authorization Code -->
+            <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <i class="fas fa-key mr-2 text-blue-500"></i>HOD Authorization Code
+                </label>
+                <input type="text" id="hodCode" required
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="Enter HOD authorization code">
+                <p class="text-xs text-blue-600 mt-1">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Contact your institution administrator for the HOD authorization code
+                </p>
+            </div>
+
+            <button type="submit" id="register-btn"
+                class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                <i class="fas fa-user-plus mr-2"></i>
+                <span id="register-btn-text">Register as HOD</span>
+            </button>
+        </form>
+
+        <!-- Error/Success Messages -->
+        <div id="message-container" class="mt-4 hidden">
+            <div id="message" class="p-3 rounded-lg text-sm font-medium text-center"></div>
+        </div>
+
+        <!-- Links -->
+        <div class="mt-6 text-center space-y-2">
+            <p class="text-sm text-gray-600">
+                Already have HOD access?
+                <a href="/hod-login" class="font-medium text-blue-600 hover:text-blue-500">
+                    Login as HOD
+                </a>
+            </p>
+            <p class="text-sm text-gray-600">
+                Faculty member?
+                <a href="/register" class="font-medium text-blue-600 hover:text-blue-500">
+                    Faculty Registration
+                </a>
+            </p>
+        </div>
+
+        <!-- Authorization Codes Info (Optional/Hidden for cleaner look, or styled nicely) -->
+        <div class="mt-8 border-t border-gray-200 pt-6">
+            <h3 class="text-sm font-semibold text-gray-500 mb-3 uppercase tracking-wider">
+                <i class="fas fa-shield-alt mr-2"></i>Valid HOD Codes (Demo)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                <div class="bg-gray-50 rounded p-2 border border-gray-200">
+                    <code class="text-blue-600 font-mono font-bold">HOD2024</code>
+                    <p class="text-gray-500 mt-1">General Access</p>
+                </div>
+                <div class="bg-gray-50 rounded p-2 border border-gray-200">
+                    <code class="text-blue-600 font-mono font-bold">ADMIN123</code>
+                    <p class="text-gray-500 mt-1">Admin Access</p>
+                </div>
+                <div class="bg-gray-50 rounded p-2 border border-gray-200">
+                    <code class="text-blue-600 font-mono font-bold">DEPT_HEAD</code>
+                    <p class="text-gray-500 mt-1">Dept Head</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle password visibility
+        function setupPasswordToggle(inputId, buttonId) {
+            document.getElementById(buttonId).addEventListener('click', function () {
+                const passwordInput = document.getElementById(inputId);
+                const icon = this.querySelector('i');
+
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+        }
+
+        setupPasswordToggle('password', 'toggle-password');
+        setupPasswordToggle('confirmPassword', 'toggle-confirm-password');
+
+        // Show message function
+        function showMessage(message, type) {
+            const container = document.getElementById('message-container');
+            const messageDiv = document.getElementById('message');
+
+            container.classList.remove('hidden');
+            messageDiv.textContent = message;
+
+            // Remove existing classes
+            messageDiv.classList.remove('bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-blue-100', 'text-blue-700');
+
+            // Add appropriate classes based on type
+            if (type === 'error') {
+                messageDiv.classList.add('bg-red-100', 'text-red-700');
+            } else if (type === 'success') {
+                messageDiv.classList.add('bg-green-100', 'text-green-700');
+            } else {
+                messageDiv.classList.add('bg-blue-100', 'text-blue-700');
+            }
+        }
+
+        // HOD Registration Form Handler
+        document.getElementById('hod-register-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                department: document.getElementById('department').value,
+                password: document.getElementById('password').value,
+                confirmPassword: document.getElementById('confirmPassword').value,
+                hodCode: document.getElementById('hodCode').value
+            };
+
+            const registerBtn = document.getElementById('register-btn');
+            const registerBtnText = document.getElementById('register-btn-text');
+
+            // Validate passwords match
+            if (formData.password !== formData.confirmPassword) {
+                showMessage('Passwords do not match', 'error');
+                return;
+            }
+
+            // Validate password strength
+            if (formData.password.length < 6) {
+                showMessage('Password must be at least 6 characters long', 'error');
+                return;
+            }
+
+            // Show loading state
+            registerBtn.disabled = true;
+            registerBtnText.textContent = 'Registering...';
+            registerBtn.classList.add('opacity-75', 'cursor-not-allowed');
+
+            try {
+                // Register with backend
+                const response = await fetch('/hod_register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage('HOD registration successful! Redirecting to login...', 'success');
+
+                    // Redirect to login after success
+                    setTimeout(() => {
+                        window.location.href = '/hod-login';
+                    }, 2000);
+                } else {
+                    throw new Error(data.error || 'Registration failed');
+                }
+
+            } catch (error) {
+                console.error('Registration error:', error);
+                showMessage(error.message || 'Registration failed. Please try again.', 'error');
+            } finally {
+                // Reset button state
+                registerBtn.disabled = false;
+                registerBtnText.textContent = 'Register as HOD';
+                registerBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+            }
+        });
+    </script>
+</body>
+
+</html>

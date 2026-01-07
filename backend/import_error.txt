@@ -1,0 +1,42 @@
+Error importing app: View function mapping is overwriting an existing endpoint function: question_paper.submit_for_approval
+Traceback (most recent call last):
+  File "D:\SmartQPGen1 (2)\SmartQPGen1\SmartQPGen (2)\SmartQPGen\backend\verify_hod_dashboard.py", line 29, in <module>
+    from app import app
+  File "D:\SmartQPGen1 (2)\SmartQPGen1\SmartQPGen (2)\SmartQPGen\backend\app.py", line 55, in <module>
+    app.register_blueprint(qp_bp)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\manis\AppData\Roaming\Python\Python314\site-packages\flask\sansio\scaffold.py", line 47, in wrapper_func
+    return f(self, *args, **kwargs)
+  File "C:\Users\manis\AppData\Roaming\Python\Python314\site-packages\flask\sansio\app.py", line 595, in register_blueprint
+    blueprint.register(self, options)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\manis\AppData\Roaming\Python\Python314\site-packages\flask\sansio\blueprints.py", line 335, in register
+    deferred(state)
+    ~~~~~~~~^^^^^^^
+  File "C:\Users\manis\AppData\Roaming\Python\Python314\site-packages\flask\sansio\blueprints.py", line 434, in <lambda>
+    lambda s: s.add_url_rule(
+              ~~~~~~~~~~~~~~^
+        rule,
+        ^^^^^
+    ...<3 lines>...
+        **options,
+        ^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\manis\AppData\Roaming\Python\Python314\site-packages\flask\sansio\blueprints.py", line 110, in add_url_rule
+    self.app.add_url_rule(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        rule,
+        ^^^^^
+    ...<3 lines>...
+        **options,
+        ^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\manis\AppData\Roaming\Python\Python314\site-packages\flask\sansio\scaffold.py", line 47, in wrapper_func
+    return f(self, *args, **kwargs)
+  File "C:\Users\manis\AppData\Roaming\Python\Python314\site-packages\flask\sansio\app.py", line 657, in add_url_rule
+    raise AssertionError(
+    ...<2 lines>...
+    )
+AssertionError: View function mapping is overwriting an existing endpoint function: question_paper.submit_for_approval

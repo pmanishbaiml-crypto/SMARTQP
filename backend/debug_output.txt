@@ -1,0 +1,9 @@
+--- Page 1 ---
+Table 1:
+--- Page 2 ---
+Table 1:
+FOUND 15 HERE:
+  Row 2: ['15.', 'Convert the following infix expression to post expression:\n((A+(B-C)*D^E+F) ii) X$Y$Z-M+N+P/Q iii) A$B*C-\nD+E|F|(G+H) iv) A-B|(C*D$E', 'CO2', 'L2', '6']
+  Row 3: ['16.', 'Write a program to evaluate the postfix expression.', 'CO2', 'L2', '6']
+  Row 4: ['17.', 'Write an algorithm to convert a parenthesized infix expression\nto postfix. Apply the algorithm and show the contents of stack\nduring conversion for the expression:\n(A+B*C) * ((D+E-F)/J).', 'CO2', 'L2', '8']
+  Row 5: ['18.', 'Write an algorithm to evaluate a postfix expression and apply\nthe same for the given postfix expression. ABC –D*+E$F+\nand assume A=6, B=3, C=2, D=5, E=1 and F=7', 'CO2', 'L2', '8']
