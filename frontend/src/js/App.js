@@ -33,19 +33,19 @@ const FirebaseProvider = ({ children }) => {
       // For local development, we use process.env.REACT_APP_... variables.
       const firebaseConfig = process.env.REACT_APP_FIREBASE_CONFIG
         ? JSON.parse(process.env.REACT_APP_FIREBASE_CONFIG)
-        : (typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null);
+        : (typeof window.__firebase_config !== 'undefined' ? JSON.parse(window.__firebase_config) : null);
 
       const initialAuthToken = process.env.REACT_APP_INITIAL_AUTH_TOKEN
         ? process.env.REACT_APP_INITIAL_AUTH_TOKEN
-        : (typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null);
+        : (typeof window.__initial_auth_token !== 'undefined' ? window.__initial_auth_token : null);
 
       const appId = process.env.REACT_APP_APP_ID
         ? process.env.REACT_APP_APP_ID
-        : (typeof __app_id !== 'undefined' ? __app_id : 'default-app-id');
+        : (typeof window.__app_id !== 'undefined' ? window.__app_id : 'default-app-id');
 
 
       if (!firebaseConfig) {
-        console.error("Firebase config not found. Please ensure REACT_APP_FIREBASE_CONFIG is set in your .env file or __firebase_config is set in Canvas.");
+        console.error("Firebase config not found. Please ensure REACT_APP_FIREBASE_CONFIG is set in your .env file or window.__firebase_config is set in Canvas.");
         return;
       }
 
@@ -451,7 +451,7 @@ const AccountMenu = ({ setMessageBox, setAuthStatus }) => {
 };
 
 const MainCanvas = ({ currentView, setMessageBox }) => {
-  const { db, userId, isAuthReady } = useContext(FirebaseContext);
+  const { db, userId, isAuthReady, auth } = useContext(FirebaseContext);
   const { toggleTheme, theme } = useContext(ThemeContext); // Access theme context
   const [recentPapers, setRecentPapers] = useState([]);
   const [savedQBs, setSavedQBs] = useState([]);
@@ -544,7 +544,7 @@ const MainCanvas = ({ currentView, setMessageBox }) => {
       onConfirm: async () => {
         try {
           if (db && userId) {
-            await deleteDoc(doc(db, `artifacts/${process.env.REACT_APP_APP_ID || (typeof __app_id !== 'undefined' ? __app_id : 'default-app-id')}/users/${userId}/generated_papers`, paperId));
+            await deleteDoc(doc(db, `artifacts/${process.env.REACT_APP_APP_ID || (typeof window.__app_id !== 'undefined' ? window.__app_id : 'default-app-id')}/users/${userId}/generated_papers`, paperId));
             setMessageBox({ message: `"${paperName}" deleted successfully.`, onConfirm: () => setMessageBox(null) });
           } else {
             setMessageBox({ message: "Database not ready or user not authenticated.", onConfirm: () => setMessageBox(null) });
@@ -589,7 +589,7 @@ const MainCanvas = ({ currentView, setMessageBox }) => {
                     return;
                   }
                   try {
-                    const newPaperRef = doc(collection(db, `artifacts/${process.env.REACT_APP_APP_ID || (typeof __app_id !== 'undefined' ? __app_id : 'default-app-id')}/users/${userId}/generated_papers`));
+                    const newPaperRef = doc(collection(db, `artifacts/${process.env.REACT_APP_APP_ID || (typeof window.__app_id !== 'undefined' ? window.__app_id : 'default-app-id')}/users/${userId}/generated_papers`));
                     await setDoc(newPaperRef, {
                       name: `Sample Paper ${new Date().toLocaleTimeString()}`,
                       timestamp: new Date().toISOString(),
