@@ -1,25 +1,62 @@
 
-import fitz  # PyMuPDF
-import easyocr
 import os
-import cv2
 import numpy as np
-from PIL import Image
-from pix2tex.cli import LatexOCR
 import pdfplumber
+
+# Robust Imports for Optional Dependencies
+try:
+    import fitz  # PyMuPDF
+except ImportError:
+    fitz = None
+    print("Warning: PyMuPDF (fitz) not found. Image extraction will be disabled/limited.")
+
+try:
+    import easyocr
+except ImportError:
+    easyocr = None
+    print("Warning: EasyOCR not found. OCR capabilities disabled.")
+
+try:
+    import cv2
+except ImportError:
+    cv2 = None
+    print("Warning: OpenCV (cv2) not found. Image processing disabled.")
+
+try:
+    from PIL import Image
+except ImportError:
+    Image = None
+
+try:
+    from pix2tex.cli import LatexOCR
+except ImportError:
+    LatexOCR = None
+    print("Warning: LatexOCR (pix2tex) not found. Math OCR disabled.")
+
 
 class AdvancedParser:
     def __init__(self):
         print("Initializing Advanced Parser...")
-        # Initialize EasyOCR reader (loads model into memory)
-        self.reader = easyocr.Reader(['en'], gpu=False) # Set gpu=True if CUDA is available
         
-        # Initialize Math OCR
-        try:
-            self.math_model = LatexOCR()
-            print("Math OCR model loaded.")
-        except Exception as e:
-            print(f"Warning: Could not load Math OCR model: {e}")
+        # Initialize EasyOCR reader ONLY if available
+        if easyocr:
+            try:
+                self.reader = easyocr.Reader(['en'], gpu=False) # Set gpu=True if CUDA is available
+            except Exception as e:
+                print(f"Error initializing EasyOCR: {e}")
+                self.reader = None
+        else:
+            self.reader = None
+        
+        # Initialize Math OCR ONLY if available
+        if LatexOCR:
+            try:
+                self.math_model = LatexOCR()
+                print("Math OCR model loaded.")
+            except Exception as e:
+                print(f"Warning: Could not load Math OCR model: {e}")
+                self.math_model = None
+        else:
             self.math_model = None
 
     def format_table_as_string(self, table):
