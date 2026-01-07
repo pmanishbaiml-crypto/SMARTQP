@@ -13,7 +13,7 @@ import {
 import { getFirestore, doc, setDoc, collection, query, onSnapshot, orderBy, deleteDoc } from 'firebase/firestore';
 import { Menu, X, Settings, HelpCircle, Sun, Moon, LogOut, User, Folder, Clock, Share2, Download, Trash2, Edit3, PlusCircle, Eye } from 'lucide-react'; // Importing icons
 
-const BACKEND_URL = 'http://localhost:5000'; // Adjust if your backend runs on a different port
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
 
 
 // --- Firebase Context ---
@@ -80,7 +80,7 @@ const FirebaseProvider = ({ children }) => {
           } else {
             try {
               await signInAnonymously(firebaseAuth);
-                console.log("Signed in anonymously.");
+              console.log("Signed in anonymously.");
             } catch (error) {
               console.error("Error signing in anonymously:", error);
             }
@@ -421,13 +421,13 @@ const AccountMenu = ({ setMessageBox, setAuthStatus }) => {
             <p className="text-xs text-gray-500 dark:text-gray-400 break-all">{userId}</p>
           </div>
           <button
-            onClick={() => { /* Add Account Logic */ setIsOpen(false); setMessageBox({message: "Add Account functionality is not yet implemented.", onConfirm: () => setMessageBox(null)}); }}
+            onClick={() => { /* Add Account Logic */ setIsOpen(false); setMessageBox({ message: "Add Account functionality is not yet implemented.", onConfirm: () => setMessageBox(null) }); }}
             className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <PlusCircle size={16} className="mr-2" /> Add Account
           </button>
           <button
-            onClick={() => { /* Sign In/Switch Account Logic */ setIsOpen(false); setMessageBox({message: "Sign In/Switch Account functionality is not yet implemented.", onConfirm: () => setMessageBox(null)}); }}
+            onClick={() => { /* Sign In/Switch Account Logic */ setIsOpen(false); setMessageBox({ message: "Sign In/Switch Account functionality is not yet implemented.", onConfirm: () => setMessageBox(null) }); }}
             className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <User size={16} className="mr-2" /> Sign In / Switch
@@ -465,7 +465,7 @@ const MainCanvas = ({ currentView, setMessageBox }) => {
       try {
         const user = auth.currentUser;
         if (!user) return;
-        
+
         const token = await user.getIdToken();
         const response = await fetch(`${BACKEND_URL}/get_recent_papers`, {
           headers: {
@@ -500,7 +500,7 @@ const MainCanvas = ({ currentView, setMessageBox }) => {
       try {
         const user = auth.currentUser;
         if (!user) return;
-        
+
         const token = await user.getIdToken();
         const response = await fetch(`${BACKEND_URL}/get_saved_items`, {
           headers: {
