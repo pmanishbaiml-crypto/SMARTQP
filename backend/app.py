@@ -10,14 +10,26 @@ from extensions import cache
 load_dotenv()
 
 # --- Firebase Admin SDK Initialization (MUST BE BEFORE BLUEPRINT IMPORTS) ---
+import json
+
 if not firebase_admin._apps:
     try:
+        service_account_json_env = os.getenv('FIREBASE_SERVICE_ACCOUNT_JSON')
         service_account_path = 'skit-qp-firebase-adminsdk-fbsvc-146911a4da.json'
-        if os.path.exists(service_account_path):
+
+        if service_account_json_env:
+            # Load from Environment Variable (Best for Render/Cloud)
+            cred_dict = json.loads(service_account_json_env)
+            cred = credentials.Certificate(cred_dict)
+            firebase_admin.initialize_app(cred)
+            print("Firebase Admin SDK initialized using FIREBASE_SERVICE_ACCOUNT_JSON env var.")
+        elif os.path.exists(service_account_path):
+            # Load from Local File (Best for Local Dev)
             cred = credentials.Certificate(service_account_path)
             firebase_admin.initialize_app(cred)
             print("Firebase Admin SDK initialized using service account JSON file.")
         else:
+            # Fallback to Default Credentials
             cred = credentials.ApplicationDefault()
             firebase_admin.initialize_app(cred)
             print("Firebase Admin SDK initialized using Application Default Credentials.")
