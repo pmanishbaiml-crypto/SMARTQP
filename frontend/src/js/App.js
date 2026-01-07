@@ -1,12 +1,10 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { initializeApp } from 'firebase/app';
-import {
-  getAuth,
+getAuth,
   signInWithCustomToken,
   onAuthStateChanged,
   signOut as firebaseSignOut,
   signInAnonymously,
-  createUserWithEmailAndPassword, // Added for registration
   signInWithEmailAndPassword,     // Added for login
   deleteUser
 } from 'firebase/auth';
