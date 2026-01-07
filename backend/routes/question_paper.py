@@ -18,7 +18,8 @@ from services.formatting_service import (
     clean_text, extract_marks_from_text, extract_table_as_text,
     format_question_with_tables
 )
-from services.parsing_service import parse_docx_question_bank
+from services.parsing_service import parse_docx_question_bank, parse_pdf_with_embedded_tables, parse_pdf_question_bank
+
 # PDF/DOCX Generation Imports
 # import pythoncom # Windows only - Moved to local scope
 from reportlab.lib.pagesizes import letter, A4
