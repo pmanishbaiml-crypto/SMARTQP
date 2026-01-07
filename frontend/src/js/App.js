@@ -10,8 +10,8 @@ import {
   signInWithEmailAndPassword,     // Added for login
   deleteUser
 } from 'firebase/auth';
-import { getFirestore, doc, setDoc, collection, query, onSnapshot, orderBy, deleteDoc } from 'firebase/firestore';
-import { Menu, X, Settings, HelpCircle, Sun, Moon, LogOut, User, Folder, Clock, Share2, Download, Trash2, Edit3, PlusCircle, Eye } from 'lucide-react'; // Importing icons
+import { getFirestore, doc, setDoc, collection, deleteDoc } from 'firebase/firestore';
+import { Menu, X, Settings, Sun, Moon, LogOut, User, Folder, Clock, Share2, Download, Trash2, Edit3, PlusCircle, Eye } from 'lucide-react'; // Importing icons
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
 
@@ -39,9 +39,7 @@ const FirebaseProvider = ({ children }) => {
         ? process.env.REACT_APP_INITIAL_AUTH_TOKEN
         : (typeof window.__initial_auth_token !== 'undefined' ? window.__initial_auth_token : null);
 
-      const appId = process.env.REACT_APP_APP_ID
-        ? process.env.REACT_APP_APP_ID
-        : (typeof window.__app_id !== 'undefined' ? window.__app_id : 'default-app-id');
+      // appId is unused, removing declaration
 
 
       if (!firebaseConfig) {
@@ -197,10 +195,8 @@ const Auth = ({ setAuthStatus, setMessageBox }) => {
         setAuthStatus(true);
       } else {
         // Firebase client-side registration
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
         // You might want to update user profile with username here if needed
-        // await updateProfile(user, { displayName: username });
+        // await updateProfile(userCredential.user, { displayName: username });
 
         setMessageBox({ message: "Registration successful! Please login.", onConfirm: () => { setMessageBox(null); setIsLogin(true); } });
       }
