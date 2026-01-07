@@ -1,6 +1,8 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { initializeApp } from 'firebase/app';
-getAuth,
+import {
+  getAuth,
+
   signInWithCustomToken,
   onAuthStateChanged,
   signOut as firebaseSignOut,
