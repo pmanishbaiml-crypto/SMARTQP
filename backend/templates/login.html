@@ -145,9 +145,8 @@
                         const idToken = await user.getIdToken();
                         console.log('Firebase ID Token obtained.');
 
-                        // Now send this ID token to your Flask backend for verification/session creation
                         console.log('Sending request to backend...');
-                        const backendAuthResponse = await fetch('http://127.0.0.1:5000/authenticate-backend', {
+                        const backendAuthResponse = await fetch('/authenticate-backend', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -185,9 +184,8 @@
                         console.error('Firebase Login or Backend Auth Error:', error.code, error.message);
                         let errorMessage = 'An unknown error occurred during login.';
 
-                        // Check if it's a network error
                         if (error.message && error.message.includes('fetch')) {
-                            errorMessage = 'Cannot connect to the server. Please make sure the backend server is running on http://localhost:5000';
+                            errorMessage = 'Cannot connect to the server. Please check your internet connection or try again later.';
                         } else if (error.code) {
                             switch (error.code) {
                                 case 'auth/user-not-found':

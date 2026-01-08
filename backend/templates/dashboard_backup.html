@@ -6325,7 +6325,7 @@
 
                 try {
                     const idToken = await user.getIdToken();
-                    const response = await fetch('http://127.0.0.1:5000/protected_data', {
+                    const response = await fetch('/protected_data', {
                         method: 'GET',
                         headers: { 'Authorization': `Bearer ${idToken}` },
                     });

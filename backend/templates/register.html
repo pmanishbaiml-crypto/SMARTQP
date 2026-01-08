@@ -125,7 +125,7 @@
                         console.log('Firebase ID Token obtained after registration.');
 
                         // Now send this ID token to your Flask backend for verification/Firestore update
-                        const backendAuthResponse = await fetch('http://127.0.0.1:5000/authenticate-backend', {
+                        const backendAuthResponse = await fetch('/authenticate-backend', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
