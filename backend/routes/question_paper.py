@@ -262,7 +262,14 @@ def generate_cie1_paper(all_questions):
     print("🎯 Generating CIE1 pattern question paper...")
     from collections import defaultdict
     questions_by_module = defaultdict(list)
-    
+    for q in all_questions:
+        try:
+            module_num = str(q.get('module', '1'))
+            marks = int(q.get('marks', 0))
+            if marks > 0:
+                q['module_num'] = module_num
+                q['marks'] = marks
+                questions_by_module[module_num].append(q)
         except (ValueError, TypeError):
             continue
 
