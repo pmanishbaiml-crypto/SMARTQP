@@ -33,6 +33,15 @@ from reportlab.pdfgen import canvas
 qp_bp = Blueprint('question_paper', __name__)
 db_firestore = firestore.client()
 
+# --- Caching Helpers ---
+def get_cached_questions(user_uid, cache_key):
+    """Get questions from cache if available"""
+    return cache.get(cache_key)
+
+def cache_questions(user_uid, cache_key, questions):
+    """Cache questions"""
+    cache.set(cache_key, questions, timeout=300)
+
 # --- Helper Functions ---
 
 def convert_docx_to_pdf_robust(docx_path):
@@ -160,8 +169,12 @@ def generate_paper_with_rules(all_questions, pattern='standard'):
     # Helper to find a combination of questions summing to target marks (approx)
     def find_standard_combo(module_qs, target_marks=25, tolerance=5):
         import itertools
+        import random
         # Try to find exact match first, then within tolerance
         # Limit combinations to 3 questions max (a, b, c)
+        
+        # SHUFFLE to ensure different questions are picked each time
+        random.shuffle(module_qs)
         
         valid_combos = []
         
@@ -250,16 +263,13 @@ def generate_cie1_paper(all_questions):
     from collections import defaultdict
     questions_by_module = defaultdict(list)
     
-    for q in all_questions:
-        try:
-            module_num = str(q.get('module', '1'))
-            marks = int(q.get('marks', 0))
-            if marks > 0:
-                q['module_num'] = module_num
-                q['marks'] = marks
-                questions_by_module[module_num].append(q)
         except (ValueError, TypeError):
             continue
+
+    # SHUFFLE questions in each module for randomness
+    import random
+    for mod in questions_by_module:
+        random.shuffle(questions_by_module[mod])
 
     available_modules = list(questions_by_module.keys())
     if not available_modules:
@@ -363,6 +373,11 @@ def generate_cie2_paper(all_questions):
                 questions_by_module[module_num].append(q)
         except (ValueError, TypeError):
             continue
+
+    # SHUFFLE questions in each module for randomness
+    import random
+    for mod in questions_by_module:
+        random.shuffle(questions_by_module[mod])
 
     # CIE2 Logic (Module 4, 5, 6)
     # Simplified for brevity, assumes logic similar to CIE1 but with different modules
@@ -808,17 +823,42 @@ def generate_question_paper():
         if pattern == 'cie1': use_latest = False
         
         all_questions = []
-        # Fetch questions logic (simplified)
-        questions_ref = db_firestore.collection('users').document(user_uid).collection('question_bank_pool')
+        latest_source_file = "All uploaded files"
+        
         if use_latest:
-            # ... (Latest logic)
-            pass
-        else:
+            # Check cache first
+            cache_key = f"latest_qs_{user_uid}"
+            all_questions = get_cached_questions(user_uid, cache_key)
+            
+            if not all_questions:
+                # 1. Find the latest source_file by checking the most recent uploaded_at
+                questions_ref = db_firestore.collection('users').document(user_uid).collection('question_bank_pool')
+                latest_docs = questions_ref.order_by('uploaded_at', direction=firestore.Query.DESCENDING).limit(1).get()
+                
+                if latest_docs:
+                    latest_source_file = latest_docs[0].to_dict().get('source_file')
+                    print(f"DEBUG: Found latest source_file: {latest_source_file}")
+                    
+                    # 2. Fetch all questions matching that source_file
+                    docs = questions_ref.where('source_file', '==', latest_source_file).stream()
+                    all_questions = []
+                    for doc in docs:
+                        q = doc.to_dict()
+                        q['firestore_id'] = doc.id
+                        all_questions.append(q)
+                    
+                    # 3. Cache it
+                    cache_questions(user_uid, cache_key, all_questions)
+        
+        # Fallback or if not using latest
+        if not all_questions:
+            questions_ref = db_firestore.collection('users').document(user_uid).collection('question_bank_pool')
             docs = questions_ref.stream()
             for doc in docs:
                 q = doc.to_dict()
                 q['firestore_id'] = doc.id
                 all_questions.append(q)
+            latest_source_file = "All uploaded files"
         
         if not all_questions: return jsonify({"error": "No questions found."}), 400
 
@@ -832,9 +872,17 @@ def generate_question_paper():
         # Save to Firestore
         paper_ref = db_firestore.collection('users').document(user_uid).collection('generated_papers').document()
         paper_data = {
-            "user_uid": user_uid, "paper_name": f"{subject} - {pattern.upper()}", "subject": subject,
-            "pattern": pattern, "questions": generated_paper, "created_at": firestore.SERVER_TIMESTAMP,
-            "status": "generated"
+            "user_uid": user_uid, 
+            "paper_name": f"{subject} - {pattern.upper()}", 
+            "subject": subject,
+            "pattern": pattern, 
+            "questions": generated_paper, 
+            "created_at": firestore.SERVER_TIMESTAMP,
+            "status": "generated",
+            "source_info": {
+                "latest_upload_only": use_latest,
+                "source_file": latest_source_file
+            }
         }
         paper_ref.set(paper_data)
         
